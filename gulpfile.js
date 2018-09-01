@@ -1,8 +1,8 @@
 // generated on 2018-08-31 using generator-webapp 3.0.1
 const gulp = require('gulp');
 const gulpLoadPlugins = require('gulp-load-plugins');
-const browserify = require("browserify");
-const babelify = require("babelify");
+const browserify = require('browserify');
+const babelify = require('babelify');
 const browserSync = require('browser-sync').create();
 const del = require('del');
 const wiredep = require('wiredep').stream;
@@ -38,18 +38,23 @@ gulp.task('scripts', () => {
     .pipe(reload({stream: true}));
 });
 
-gulp.task("sw", () => {
+gulp.task('sw', () => {
   const browse = browserify({
     debug: true
   });
 
   return browse
+    .transform(babelify.configure({
+      presets : ['es2015']
+    }))
     .transform(babelify)
-    .require("app/sw.js", {entry:true})
+    .require('app/sw.js', {entry:true})
     .bundle()
-    .pipe(source("sw.js"))
-    .pipe(gulp.dest(".tmp/"))
+    .pipe(source('sw.js'))
+    .pipe(gulp.dest('.tmp/'))
 });
+
+
 
 function lint(files) {
   return gulp.src(files)

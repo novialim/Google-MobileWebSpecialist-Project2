@@ -9,37 +9,25 @@ const babelify = require('babelify');
 const browserify = require('browserify');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
-var autoprefixer = require('gulp-autoprefixer');
+var webpack = require('gulp-webpack');
+var named = require('vinyl-named');
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 
 let dev = true;
 
-gulp.task('sass', function(){
-  return gulp.src('./app/css/**/*.css')
-    .pipe(sass({
-      outputStyle: 'compressed'
-    }).on('error', sass.logError))
-    .pipe(autoprefixer({
-      browsers: ['last 2 versions']
-    }))
-    .pipe(gulp.dest('dist/css'))
-    .pipe(browserSync.stream());
-});
+gulp.task('dbhelper', () => {
+  const browse = browserify({
+    debug: true
+  });
 
-gulp.task('dbhelper', function(){
-
-  return browserify({
-    entries: ['./app/js/dbhelper.js']
-  })
-    .transform(babelify.configure({
-      presets : ['@babel/preset-env']
-    }))
+  return browse
+    .transform(babelify)
+    .require('app/js/dbhelper.js', { entry: true })
     .bundle()
     .pipe(source('dbhelper.js'))
-    .pipe(buffer())
-    .pipe(gulp.dest('./dist/js'));
+    .pipe(gulp.dest('.tmp/js/'));
 });
 
 gulp.task('styles', () => {
@@ -65,6 +53,17 @@ gulp.task('scripts', () => {
     .pipe($.if(dev, $.sourcemaps.write('.')))
     .pipe(gulp.dest('.tmp/scripts'))
     .pipe(reload({stream: true}));
+});
+
+gulp.task('js', () => {
+  return gulp
+    .src(['app/js/**/*.js', '!app/js/**/dbhelper.js'])
+    .pipe($.plumber())
+    .pipe($.if(dev, $.sourcemaps.init()))
+    .pipe($.babel())
+    .pipe($.if(dev, $.sourcemaps.write('.')))
+    .pipe(gulp.dest('.tmp/js'))
+    .pipe(reload({ stream: true }));
 });
 
 gulp.task('sw', () => {
@@ -170,7 +169,7 @@ gulp.task('extras', () => {
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
 gulp.task('serve', () => {
-  runSequence(['clean', 'wiredep'], ['styles', 'scripts', 'fonts'], () => {
+  runSequence(['clean', 'wiredep'], ['html', 'js', 'dbhelper', 'styles', 'sw', 'fonts'], () => {
     browserSync.init({
       notify: false,
       port: 9000,
@@ -251,4 +250,32 @@ gulp.task('default', () => {
     dev = false;
     runSequence(['clean', 'wiredep'], 'build', resolve);
   });
+});
+
+
+gulp.task('dev', function() {
+  return gulp.src('app/js/main.js')
+    .pipe(named())
+    .pipe(webpack({
+      watch : true,
+      module: {
+        loaders: [
+          {
+            test: /\.jsx?$/,
+            exclude: /node_modules/,
+            loader: 'babel',
+            query: {
+              presets: ['react', 'es2015']
+            }
+          }
+        ]
+      },
+      output : {
+        filename : '[name].jsx',
+      },
+      resolve: {
+        alias: { localforage: 'localforage/dist/localforage.min' }
+      }
+    }))
+    .pipe(gulp.dest('app/dist/'));
 });

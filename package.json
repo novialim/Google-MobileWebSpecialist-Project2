@@ -45,6 +45,7 @@
     }
   },
   "dependencies": {
-    "browserify": "^16.2.2"
+    "browserify": "^16.2.2",
+    "idb": "^2.1.3"
   }
 }

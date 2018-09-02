@@ -1,6 +1,7 @@
 /**
  * Common database helper functions.
  */
+
 class DBHelper {
 
   /**
@@ -172,3 +173,5 @@ class DBHelper {
   }
 
 }
+
+window.DBHelper = DBHelper;

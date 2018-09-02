@@ -1,17 +1,46 @@
 // generated on 2018-08-31 using generator-webapp 3.0.1
 const gulp = require('gulp');
 const gulpLoadPlugins = require('gulp-load-plugins');
-const browserify = require('browserify');
-const babelify = require('babelify');
 const browserSync = require('browser-sync').create();
 const del = require('del');
 const wiredep = require('wiredep').stream;
 const runSequence = require('run-sequence');
+const babelify = require('babelify');
+const browserify = require('browserify');
+const source = require('vinyl-source-stream');
+const buffer = require('vinyl-buffer');
+var autoprefixer = require('gulp-autoprefixer');
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 
 let dev = true;
+
+gulp.task('sass', function(){
+  return gulp.src('./app/css/**/*.css')
+    .pipe(sass({
+      outputStyle: 'compressed'
+    }).on('error', sass.logError))
+    .pipe(autoprefixer({
+      browsers: ['last 2 versions']
+    }))
+    .pipe(gulp.dest('dist/css'))
+    .pipe(browserSync.stream());
+});
+
+gulp.task('dbhelper', function(){
+
+  return browserify({
+    entries: ['./app/js/dbhelper.js']
+  })
+    .transform(babelify.configure({
+      presets : ['@babel/preset-env']
+    }))
+    .bundle()
+    .pipe(source('dbhelper.js'))
+    .pipe(buffer())
+    .pipe(gulp.dest('./dist/js'));
+});
 
 gulp.task('styles', () => {
   return gulp.src('app/styles/*.scss')
@@ -54,7 +83,33 @@ gulp.task('sw', () => {
     .pipe(gulp.dest('.tmp/'))
 });
 
+gulp.task('main', function(){
 
+  return browserify({
+    entries: ['./app/js/main.js']
+  })
+    .transform(babelify.configure({
+      presets : ['@babel/preset-env']
+    }))
+    .bundle()
+    .pipe(source('main.js'))
+    .pipe(buffer())
+    .pipe(gulp.dest('./dist/js'));
+});
+
+gulp.task('db', function(){
+
+  return browserify({
+    entries: ['./app/sw.js']
+  })
+    .transform(babelify.configure({
+      presets : ['@babel/preset-env']
+    }))
+    .bundle()
+    .pipe(source('sw.js'))
+    .pipe(buffer())
+    .pipe(gulp.dest('./dist'));
+});
 
 function lint(files) {
   return gulp.src(files)

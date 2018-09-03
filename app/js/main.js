@@ -102,6 +102,7 @@ const updateRestaurants = () => {
     } else {
       resetRestaurants(restaurants);
       fillRestaurantsHTML();
+      helper.lazyLoad();
     }
   })
 }

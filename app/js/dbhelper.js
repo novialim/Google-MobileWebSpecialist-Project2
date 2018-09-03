@@ -2,6 +2,21 @@
  * Common database helper functions.
  */
 
+import idb from 'idb';
+
+const dbPromise = idb.open('udacity-restaurant', 4, upgradeDB => {
+  switch (upgradeDB.oldVersion) {
+    case 0:
+      upgradeDB.createObjectStore('restaurants', {keyPath: 'id'});
+      break;
+    case 1:
+      upgradeDB.createObjectStore('pending', {
+        keyPath: 'id',
+        autoIncrement: true
+      });
+  }
+});
+
 class DBHelper {
 
   /**
@@ -95,10 +110,10 @@ class DBHelper {
         callback(error, null)
       } else {
         let results = restaurants
-        if (cuisine != 'all') { // filter by cuisine
+        if (cuisine !== 'all') { // filter by cuisine
           results = results.filter(r => r.cuisine_type == cuisine)
         }
-        if (neighborhood != 'all') { // filter by neighborhood
+        if (neighborhood !== 'all') { // filter by neighborhood
           results = results.filter(r => r.neighborhood == neighborhood)
         }
         callback(null, results)

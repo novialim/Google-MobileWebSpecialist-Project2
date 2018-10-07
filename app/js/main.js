@@ -145,9 +145,29 @@ const createRestaurantHTML = (restaurant) => {
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   li.append(image);
 
-  const name = document.createElement('h1');
+  const div = document.createElement('div');
+  div.className = 'restaurant-text-area';
+  li.append(div);
+
+  const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
-  li.append(name);
+  div.append(name);
+
+  console.log("is_favorite: ", restaurant["is_favorite"]);
+  const isFavorite = (restaurant["is_favorite"] && restaurant["is_favorite"].toString() === "true") ? true : false;
+  const favoriteDiv = document.createElement("div");
+  favoriteDiv.className = "favorite-icon";
+  const favorite = document.createElement("button");
+  favorite.style.background = isFavorite
+    ? `url("/icons/outline-favorite-24px.svg") no-repeat`
+    : `url("/icons/outline-favorite_border-24px.svg") no-repeat`;
+  // favorite.innerHTML = isFavorite
+  //   ? restaurant.name + " is a favorite"
+  //   : restaurant.name + " is not a favorite";
+  favorite.id = "favorite-icon-" + restaurant.id;
+  favorite.onclick = event => handleFavoriteClick(restaurant.id, !isFavorite);
+  favoriteDiv.append(favorite);
+  div.append(favoriteDiv);
 
   const neighborhood = document.createElement('p');
   neighborhood.innerHTML = restaurant.neighborhood;

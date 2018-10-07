@@ -209,7 +209,7 @@ nav h1 a {
     min-height: 380px;
     padding: 0 30px 25px;
     text-align: left;
-    width: 270px;
+    width: 295px;
 }
 
 /* Smartphones (portrait and landscape) ----------- */
@@ -366,8 +366,37 @@ nav h1 a {
     width: 85%;
 }
 
+#restaurants-list .restaurant-text-area {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 170px;
+  position: relative;
+}
+
 #reviews-list li p {
     margin: 0 0 10px;
+}
+
+#restaurants-list li .favorite-icon button, #maincontent .favorite-icon button {
+  max-width: 25px;
+  max-height: 25px;
+  position: absolute;
+  top: 4px;
+  right: 20px;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  background-color: inherit;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 2px;
+}
+
+#maincontent .favorite-icon button {
+  top: 20px;
 }
 
 #restaurant-hours td {
